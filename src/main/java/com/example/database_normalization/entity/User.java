@@ -1,15 +1,11 @@
 package com.example.database_normalization.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,9 +24,6 @@ public class User {
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
-
-    @ManyToMany(mappedBy = "assignees", fetch = FetchType.LAZY)
-    private Set<Task> tasks = new HashSet<>();
 
     public User() {}
 
@@ -52,6 +45,4 @@ public class User {
     public String getEmail() { return this.email; }
     public void setEmail(String email) { this.email = email; }
 
-    public Set<Task> getTasks() { return tasks; }
-    public void setTasks(Set<Task> tasks) { this.tasks = tasks; }
 }
