@@ -40,7 +40,7 @@ public class DataBaseTestRunner implements CommandLineRunner {
             System.out.println();
             System.out.println("Task: " + task.getTitle());
             System.out.println("Assigned to: ");
-            task.getAssignee().forEach(user -> System.out.println(user.getFirstName() + " "));
+            task.getAssignees().forEach(user -> System.out.println(user.getFirstName() + " "));
             System.out.println("\n-------------------------");
         });
     }

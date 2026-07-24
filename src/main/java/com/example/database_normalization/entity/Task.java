@@ -48,6 +48,6 @@ public class Task {
     public TaskStatus getStatus() { return status; }
     public void setStatus(TaskStatus status) { this.status = status; }
 
-    public Set<User> getAssignee() { return assignees; }
+    public Set<User> getAssignees() { return assignees; }
     public void setAssignees(Set<User> assignees) { this.assignees = assignees; }
 }

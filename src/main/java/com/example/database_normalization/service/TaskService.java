@@ -28,4 +28,23 @@ public class TaskService {
     public Task createTask(Task task) {
         return taskRepository.save(task);
     }
+
+    public Optional<Task> updateTask(Long id, Task taskDetails) {
+        return taskRepository.findById(id).map(existingTask -> {
+            existingTask.setTitle(taskDetails.getTitle());
+            existingTask.setStatus(taskDetails.getStatus());
+
+            return taskRepository.save(existingTask);
+        });
+    }
+
+    public boolean deleteTask(Long id) {
+        if (!taskRepository.existsById(id)) {
+            return false;
+        }
+
+        taskRepository.deleteById(id);
+        return true;
+    }
 }
+
