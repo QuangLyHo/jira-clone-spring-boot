@@ -25,15 +25,15 @@ public class Task {
 
     private String title;
 
-    @Enumerated(EnumType.STRING) // Maps SQL Enum safely to Java
+    @Enumerated(EnumType.STRING) 
     private TaskStatus status;
 
-    // 1. establishing many-to-many connection
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "task_assignees", 
-        joinColumns = @JoinColumn(name = "task_id"), // column linking this to task
-        inverseJoinColumns = @JoinColumn(name = "assignee_id") // column linking to the user
+        joinColumns = @JoinColumn(name = "task_id"),
+        inverseJoinColumns = @JoinColumn(name = "assignee_id") 
     )
     private Set<User> assignees = new HashSet<>();
 
