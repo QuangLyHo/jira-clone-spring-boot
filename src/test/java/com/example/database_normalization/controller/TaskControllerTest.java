@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import com.example.database_normalization.entity.Task;
 import com.example.database_normalization.service.TaskService;
@@ -64,6 +65,31 @@ public class TaskControllerTest {
                         .content(objectMapper.writeValueAsString(updatedTask)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated title"));
+    }
 
+    @Test
+    void updateTask_whenTaskDoesNotExist_returns404() throws Exception {
+        when(taskService.updateTask(eq(99L), any(Task.class))).thenReturn(Optional.empty());
+
+        mockMvc.perform(put("/api/tasks/99")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new Task())))
+                .andExpect(status().isNotFound());
+    }
+    
+    @Test
+    void deleteTask_whenTaskExists_returns204() throws Exception {
+        when(taskService.deleteTask(1L)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/tasks/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteTask_whenTaskDoesNotExist_returns404() throws Exception {
+        when(taskService.deleteTask(99L)).thenReturn(false);
+
+        mockMvc.perform(delete("/api/tasks/99"))
+                .andExpect(status().isNotFound());
     }
 }
