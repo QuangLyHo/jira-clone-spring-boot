@@ -3,6 +3,7 @@ package com.example.database_normalization.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -13,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -23,6 +25,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "title", length = 200, nullable = false)
     private String title;
 
     @Enumerated(EnumType.STRING) 
@@ -36,6 +39,13 @@ public class Task {
         inverseJoinColumns = @JoinColumn(name = "assignee_id") 
     )
     private Set<User> assignees = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    public Project getProject() { return project; }
+    public void setProject(Project project) { this.project = project; }
 
     public Task() {}
 
