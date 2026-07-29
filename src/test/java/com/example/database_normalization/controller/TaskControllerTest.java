@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import com.example.database_normalization.entity.Task;
 import com.example.database_normalization.service.TaskService;
@@ -51,6 +52,40 @@ public class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].title").value("Fix login bug"));
+    }
+
+    @Test
+    void createTask_returnsCreatedTask() throws Exception {
+        Task newTask = new Task();
+
+        newTask.setTitle("New Task");
+        when(taskService.createTask(any(Task.class))).thenReturn(newTask);
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newTask)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("New Task"));
+    }
+
+    @Test
+    void getTaskById_whenTaskExists_returnsTask() throws Exception {
+        Task task = new Task();
+        task.setTitle("new task");
+
+        when(taskService.getTaskById(1L)).thenReturn(Optional.of(task));
+
+        mockMvc.perform(get("/api/tasks/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("new task"));
+    }
+
+    @Test
+    void getTaskById_whenTaskDoesNotExist_returns404() throws Exception {
+        when(taskService.getTaskById(99L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/tasks/99"))
+                .andExpect(status().isNotFound());
     }
 
     @Test

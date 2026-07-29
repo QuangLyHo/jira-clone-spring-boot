@@ -30,12 +30,12 @@ public class UserService {
     }
 
     public Optional<User> updateUser(Long id, User userDetails) {
-        return userRepository.findById(id).map(exisitingUser -> {
-            exisitingUser.setFirstName(userDetails.getFirstName());
-            exisitingUser.setLastName(userDetails.getLastName());
-            exisitingUser.setEmail(userDetails.getEmail());
+        return userRepository.findById(id).map(existingUser -> {
+            existingUser.setFirstName(userDetails.getFirstName());
+            existingUser.setLastName(userDetails.getLastName());
+            existingUser.setEmail(userDetails.getEmail());
 
-            return userRepository.save(exisitingUser);
+            return userRepository.save(existingUser);
         });
     }
 
