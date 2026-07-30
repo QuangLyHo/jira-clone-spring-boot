@@ -8,9 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "projects")
@@ -20,12 +17,9 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "name is required")
     @Column(name = "name", nullable = false)
     private String name;
 
-    @NotNull(message = "budget is required")
-    @DecimalMin(value = "0.0", message = "budget cannot be negative")
     @Column(name = "budget", nullable = false, precision = 12, scale = 2)
     private BigDecimal budget;
 

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.database_normalization.dto.ProjectRequest;
+import com.example.database_normalization.dto.ProjectResponse;
 import com.example.database_normalization.entity.Project;
 import com.example.database_normalization.service.ProjectService;
 
@@ -33,27 +35,27 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Project>> getAllProjects() {
+    public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping
-    public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
-        Project createdProject = projectService.createProject(project);
+    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest request) {
+        ProjectResponse createdProject = projectService.createProject(request);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Project> updateProject(@PathVariable Long id, 
-                                                 @Valid @RequestBody Project project) {
-        return projectService.updateProject(id, project)
+    public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long id, 
+                                                 @Valid @RequestBody ProjectRequest request) {
+        return projectService.updateProject(id, request)
                                 .map(ResponseEntity::ok)
                                 .orElse(ResponseEntity.notFound().build());
     }
