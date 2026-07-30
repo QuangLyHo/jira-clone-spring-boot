@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.database_normalization.dto.ProjectRequest;
 import com.example.database_normalization.dto.ProjectResponse;
-import com.example.database_normalization.entity.Project;
 import com.example.database_normalization.service.ProjectService;
 
 import jakarta.validation.Valid;
