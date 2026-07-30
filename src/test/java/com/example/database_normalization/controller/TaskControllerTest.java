@@ -104,11 +104,14 @@ public class TaskControllerTest {
 
     @Test
     void updateTask_whenTaskDoesNotExist_returns404() throws Exception {
+        Task validTask = new Task();
+        validTask.setTitle("Valid title");
+        
         when(taskService.updateTask(eq(99L), any(Task.class))).thenReturn(Optional.empty());
-
+        
         mockMvc.perform(put("/api/tasks/99")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(new Task())))
+                    .content(objectMapper.writeValueAsString(validTask)))
                 .andExpect(status().isNotFound());
     }
     
@@ -126,5 +129,17 @@ public class TaskControllerTest {
 
         mockMvc.perform(delete("/api/tasks/99"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createTask_withBlankTitle_returns400WithFieldError() throws Exception {
+        Task invalidTask = new Task();
+        invalidTask.setTitle("");
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidTask)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Title is required"));
     }
 }

@@ -17,6 +17,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import jakarta.validation.constraints.NotBlank;
+
 @Entity
 @Table(name = "tasks")
 public class Task {
@@ -25,6 +27,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
     @Column(name = "title", length = 200, nullable = false)
     private String title;
 

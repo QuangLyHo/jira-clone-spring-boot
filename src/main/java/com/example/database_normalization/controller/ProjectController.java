@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.database_normalization.entity.Project;
 import com.example.database_normalization.service.ProjectService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,14 +45,14 @@ public class ProjectController {
     }
     
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project project) {
+    public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
         Project createdProject = projectService.createProject(project);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Project> updateProject(@PathVariable Long id, 
-                                                    @RequestBody Project project) {
+                                                 @Valid @RequestBody Project project) {
         return projectService.updateProject(id, project)
                                 .map(ResponseEntity::ok)
                                 .orElse(ResponseEntity.notFound().build());

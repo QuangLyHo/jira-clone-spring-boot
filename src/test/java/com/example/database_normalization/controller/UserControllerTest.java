@@ -94,6 +94,8 @@ public class UserControllerTest {
     void updateUser_whenUserExists_returnsUpdatedUser() throws Exception {
         User updatedUser = new User();
         updatedUser.setEmail("newEmail@gmail.com");
+        updatedUser.setFirstName("Greg");
+        updatedUser.setLastName("Hardy");
 
         when(userService.updateUser(eq(1L), any(User.class))).thenReturn(Optional.of(updatedUser));
 
@@ -106,11 +108,16 @@ public class UserControllerTest {
 
     @Test
     void updateUser_whenUserDoesNotExist_returns404() throws Exception {
+        User validUser = new User();
+        validUser.setEmail("valid@gmail.com");
+        validUser.setFirstName("First");
+        validUser.setLastName("Last");
+
         when(userService.updateUser(eq(99L), any(User.class))).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/api/users/99")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new User())))
+                        .content(objectMapper.writeValueAsString(validUser)))
                 .andExpect(status().isNotFound());
     }
 
