@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.database_normalization.dto.UserRequest;
 import com.example.database_normalization.dto.UserResponse;
-import com.example.database_normalization.entity.User;
 import com.example.database_normalization.service.UserService;
 
 import jakarta.validation.Valid;
