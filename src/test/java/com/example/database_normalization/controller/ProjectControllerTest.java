@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.database_normalization.dto.ProjectRequest;
 import com.example.database_normalization.dto.ProjectResponse;
 import com.example.database_normalization.service.ProjectService;
+import com.example.database_normalization.service.TaskService;
 
 import tools.jackson.databind.ObjectMapper;
 
@@ -39,6 +40,9 @@ public class ProjectControllerTest {
 
     @MockitoBean
     private ProjectService projectService;
+
+    @MockitoBean
+    private TaskService taskService;
 
     @Test
     void getAllProjects_returnsJsonArrayOfProjects() throws Exception {

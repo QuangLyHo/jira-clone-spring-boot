@@ -143,4 +143,18 @@ public class TaskControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Title is required"));
     }
+
+    @Test 
+    void createTask_withNonExistentProjectId_returns400() throws Exception {
+        TaskRequest request = new TaskRequest("New Task", TaskStatus.todo, 99L, Set.of());
+
+        when(taskService.createTask(any(TaskRequest.class)))
+                .thenThrow(new IllegalArgumentException("Project not found: 99"));
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Project not found: 99"));
+    }
 }
