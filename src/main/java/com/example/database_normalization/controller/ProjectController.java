@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.database_normalization.dto.ProjectRequest;
 import com.example.database_normalization.dto.ProjectResponse;
+import com.example.database_normalization.dto.TaskResponse;
 import com.example.database_normalization.service.ProjectService;
+import com.example.database_normalization.service.TaskService;
 
 import jakarta.validation.Valid;
 
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -28,9 +32,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class ProjectController {
     
     private final ProjectService projectService;
+    private final TaskService taskService;
 
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, TaskService taskService) {
         this.projectService = projectService;
+        this.taskService = taskService;
     }
 
     @GetMapping
@@ -44,6 +50,16 @@ public class ProjectController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{id}/tasks")
+    public ResponseEntity<List<TaskResponse>> getTasksForProject(@PathVariable Long id) {
+        if (projectService.getProjectById(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        return ResponseEntity.ok(taskService.getTasksByProjectId(id));
+    }
+    
     
     @PostMapping
     public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody ProjectRequest request) {

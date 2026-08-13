@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -17,17 +18,27 @@ import java.util.Set;
 
 import com.example.database_normalization.dto.TaskRequest;
 import com.example.database_normalization.dto.TaskResponse;
+import com.example.database_normalization.entity.Project;
 import com.example.database_normalization.entity.Task;
+import com.example.database_normalization.repository.ProjectRepository;
 import com.example.database_normalization.repository.TaskRepository;
+import com.example.database_normalization.repository.UserRepository;
 import com.example.database_normalization.entity.TaskStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskServiceTest {
 
     @Mock
     private TaskRepository taskRepository;
+
+    @Mock 
+    ProjectRepository projectRepository;
+
+    @Mock 
+    UserRepository userRepository;
 
     @InjectMocks
     private TaskService taskService;
@@ -138,5 +149,41 @@ public class TaskServiceTest {
 
         assertThat(result).isFalse();
         verify(taskRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void createTask_withProjectId_associatesProject() {
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Mobile App v1");
+        project.setBudget(new BigDecimal("10000.00"));
+
+        TaskRequest request = new TaskRequest("New Task", TaskStatus.todo, 1L, Set.of());
+        
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> {
+            Task savedTask = invocation.getArgument(0);
+            savedTask.setId(1L);
+            
+            return savedTask;
+        });
+
+        TaskResponse result = taskService.createTask(request);
+
+        assertThat(result.project()).isNotNull();
+        assertThat(result.project().id()).isEqualTo(1L);
+        assertThat(result.project().name()).isEqualTo("Mobile App v1");
+        verify(projectRepository).findById(1L);
+    }
+
+    @Test
+    void createTask_withNonExistentProjectId_throwsIllegalArgumentException() {
+        TaskRequest request = new TaskRequest("New Task", TaskStatus.todo, 99L, Set.of());
+
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> taskService.createTask(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Project not found");
     }
 }

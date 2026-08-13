@@ -39,6 +39,12 @@ public class TaskService {
         return taskRepository.findById(id).map(TaskResponse::from);
     }
 
+    public List<TaskResponse> getTasksByProjectId(Long projectId) {
+        return taskRepository.findByProjectIdWithAssignees(projectId).stream()
+                .map(TaskResponse::from)
+                .toList();
+    }
+
     public TaskResponse createTask(TaskRequest request) {
         Task task = new Task();
 
