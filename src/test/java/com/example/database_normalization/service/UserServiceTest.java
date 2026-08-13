@@ -81,11 +81,6 @@ public class UserServiceTest {
         existingUser.setFirstName("Greg");
         existingUser.setLastName("Hardy");
 
-        // UserRequest updatedDetails = new User();
-        // updatedDetails.setFirstName("newFirst");
-        // updatedDetails.setLastName("newLast");
-        // updatedDetails.setEmail("newEmail@Email.com");
-
         UserRequest request = new UserRequest("newEmail@Email.com" ,"newFirst", "newLast");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
@@ -94,8 +89,8 @@ public class UserServiceTest {
         Optional<UserResponse> result = userService.updateUser(1L, request);
         
         assertThat(result).isPresent();
-        assertThat(result.get().first()).isEqualTo("newFirst");
-        assertThat(result.get().last()).isEqualTo("newLast");
+        assertThat(result.get().firstName()).isEqualTo("newFirst");
+        assertThat(result.get().lastName()).isEqualTo("newLast");
         assertThat(result.get().email()).isEqualTo("newEmail@Email.com");
         verify(userRepository).save(existingUser);
     }

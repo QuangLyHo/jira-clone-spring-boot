@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.example.database_normalization.dto.UserRequest;
 import com.example.database_normalization.dto.UserResponse;
-import com.example.database_normalization.entity.User;
 import com.example.database_normalization.service.UserService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -43,10 +42,8 @@ public class UserControllerTest {
 
     @Test
     void getAllUsers_returnsJsonArrayOfUsers() throws Exception {
-        UserResponse user = new UserResponse(1L, "email", "first", "last");
+        UserResponse user = new UserResponse(1L, "new@gmail.com", "first", "last");
 
-        // User user = new User();
-        // user.setEmail("new@gmail.com");
         when(userService.getAllUsers()).thenReturn(List.of(user));
 
         mockMvc.perform(get("/api/users"))
@@ -57,14 +54,8 @@ public class UserControllerTest {
 
     @Test
     void createUser_returnsCreatedUser() throws Exception {
-        UserRequest request = new UserRequest("email", "frist", "last");
-        UserResponse response = new UserResponse(1L, "email", "first", "last");
-
-        User newUser = new User();
-
-        newUser.setEmail("new@gmail.com");
-        newUser.setFirstName("firstName");
-        newUser.setLastName("lastName");
+        UserRequest request = new UserRequest("new@gmail.com", "first", "last");
+        UserResponse response = new UserResponse(1L, "new@gmail.com", "first", "last");
 
         when(userService.createUser(any(UserRequest.class))).thenReturn(response);
 
@@ -77,16 +68,24 @@ public class UserControllerTest {
 
     @Test
     void getUserById_whenUserExists_returnsUser() throws Exception {
-        UserResponse user = new UserResponse(1L, "email", "first", "last");
-        
-        // User user = new User();
-        // user.setEmail("Greg@testEmail.com");
+        UserResponse user = new UserResponse(1L, "Greg@testEmail.com", "first", "last");
 
         when(userService.getUserById(1L)).thenReturn(Optional.of(user));
 
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("Greg@testEmail.com"));
+    }
+
+    @Test
+    void createUser_withBlankEmail_returns400WithFieldError() throws Exception {
+        UserRequest invalidRequest = new UserRequest("", "First", "Last");
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").value("email is required"));
     }
 
     @Test
@@ -100,7 +99,7 @@ public class UserControllerTest {
     @Test
     void updateUser_whenUserExists_returnsUpdatedUser() throws Exception {
         UserRequest request = new UserRequest("newEmail@gmail.com", "Greg", "Hardy");
-        UserResponse response = new UserResponse(1L, "newEmail.gmail.com", "Greg", "Hardy");
+        UserResponse response = new UserResponse(1L, "newEmail@gmail.com", "Greg", "Hardy");
 
         when(userService.updateUser(eq(1L), any(UserRequest.class))).thenReturn(Optional.of(response));
 
@@ -114,11 +113,6 @@ public class UserControllerTest {
     @Test
     void updateUser_whenUserDoesNotExist_returns404() throws Exception {
         UserRequest request = new UserRequest("valid@gmail.com", "First", "Last");
-        
-        // User validUser = new User();
-        // validUser.setEmail("valid@gmail.com");
-        // validUser.setFirstName("First");
-        // validUser.setLastName("Last");
 
         when(userService.updateUser(eq(99L), any(UserRequest.class))).thenReturn(Optional.empty());
 
@@ -133,7 +127,7 @@ public class UserControllerTest {
         when(userService.deleteUser(1L)).thenReturn(true);
 
         mockMvc.perform(delete("/api/users/1"))
-                        .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -141,6 +135,6 @@ public class UserControllerTest {
         when(userService.deleteUser(99L)).thenReturn(false);
 
         mockMvc.perform(delete("/api/users/99"))
-                        .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 }
