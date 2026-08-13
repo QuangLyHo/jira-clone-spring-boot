@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.database_normalization.dto.UserRequest;
+import com.example.database_normalization.dto.UserResponse;
 import com.example.database_normalization.entity.User;
 import com.example.database_normalization.repository.UserRepository;
 
@@ -37,10 +39,10 @@ public class UserServiceTest {
 
         when(userRepository.findAll()).thenReturn(List.of(user));
 
-        List<User> result = userService.getAllUsers();
+        List<UserResponse> result = userService.getAllUsers();
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getEmail()).isEqualTo("Greg@testEmail.com");
+        assertThat(result.get(0).email()).isEqualTo("Greg@testEmail.com");
         verify(userRepository).findAll();
     }
 
@@ -54,10 +56,10 @@ public class UserServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        Optional<User> result = userService.getUserById(1L);
+        Optional<UserResponse> result = userService.getUserById(1L);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getEmail()).isEqualTo("Greg@testEmail.com");
+        assertThat(result.get().email()).isEqualTo("Greg@testEmail.com");
         verify(userRepository).findById(1L);
     }
 
@@ -65,7 +67,7 @@ public class UserServiceTest {
     void getUserById_whenUserDoesNotExist_returnsEmptyOptional() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Optional<User> result = userService.getUserById(99L);
+        Optional<UserResponse> result = userService.getUserById(99L);
 
         assertThat(result).isEmpty();
         verify(userRepository).findById(99L);
@@ -79,28 +81,27 @@ public class UserServiceTest {
         existingUser.setFirstName("Greg");
         existingUser.setLastName("Hardy");
 
-        User updatedDetails = new User();
-        updatedDetails.setFirstName("newFirst");
-        updatedDetails.setLastName("newLast");
-        updatedDetails.setEmail("newEmail@Email.com");
+        UserRequest request = new UserRequest("newEmail@Email.com" ,"newFirst", "newLast");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(existingUser)).thenReturn(existingUser);
 
-        Optional<User> result = userService.updateUser(1L, updatedDetails);
+        Optional<UserResponse> result = userService.updateUser(1L, request);
         
         assertThat(result).isPresent();
-        assertThat(result.get().getFirstName()).isEqualTo("newFirst");
-        assertThat(result.get().getLastName()).isEqualTo("newLast");
-        assertThat(result.get().getEmail()).isEqualTo("newEmail@Email.com");
+        assertThat(result.get().firstName()).isEqualTo("newFirst");
+        assertThat(result.get().lastName()).isEqualTo("newLast");
+        assertThat(result.get().email()).isEqualTo("newEmail@Email.com");
         verify(userRepository).save(existingUser);
     }
 
     @Test
     void updateUser_whenUserDoesNotExist_returnsEmptyOptional() {
+        UserRequest request = new UserRequest("new", "first", "last");
+
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Optional<User> result = userService.updateUser(99L, new User());
+        Optional<UserResponse> result = userService.updateUser(99L, request);
 
         assertThat(result).isEmpty();
         verify(userRepository, never()).save(any());

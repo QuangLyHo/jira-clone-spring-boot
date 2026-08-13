@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.database_normalization.dto.ProjectRequest;
+import com.example.database_normalization.dto.ProjectResponse;
 import com.example.database_normalization.entity.Project;
 import com.example.database_normalization.repository.ProjectRepository;
 
@@ -17,24 +19,31 @@ public class ProjectService {
         this.projectRepository = projectRepository;
     }
 
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    public List<ProjectResponse> getAllProjects() {
+        return projectRepository.findAll().stream()
+                .map(ProjectResponse::from)
+                .toList();
     }
 
-    public Optional<Project> getProjectById(Long id) {
-        return projectRepository.findById(id);
+    public Optional<ProjectResponse> getProjectById(Long id) {
+        return projectRepository.findById(id).map(ProjectResponse::from);
     }
 
-    public Project createProject(Project project) {
-        return projectRepository.save(project);
+    public ProjectResponse createProject(ProjectRequest request) {
+        Project project = new Project();
+
+        project.setName(request.name());
+        project.setBudget(request.budget());
+        
+        return ProjectResponse.from(projectRepository.save(project));
     }
 
-    public Optional<Project> updateProject(Long id, Project projectDetails) {
+    public Optional<ProjectResponse> updateProject(Long id, ProjectRequest request) {
         return projectRepository.findById(id).map(existingProject -> {
-            existingProject.setName(projectDetails.getName());
-            existingProject.setBudget(projectDetails.getBudget());
+            existingProject.setName(request.name());
+            existingProject.setBudget(request.budget());
 
-            return projectRepository.save(existingProject);
+            return ProjectResponse.from(projectRepository.save(existingProject));
         });
     }
 

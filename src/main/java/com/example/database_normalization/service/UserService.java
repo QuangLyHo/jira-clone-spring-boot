@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.database_normalization.dto.UserRequest;
+import com.example.database_normalization.dto.UserResponse;
 import com.example.database_normalization.entity.User;
 import com.example.database_normalization.repository.UserRepository;
 
@@ -17,25 +19,33 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserResponse::from)
+                .toList();
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserResponse> getUserById(Long id) {
+        return userRepository.findById(id).map(UserResponse::from);
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public UserResponse createUser(UserRequest request) {
+        User user = new User();
+
+        user.setEmail(request.email());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        
+        return UserResponse.from(userRepository.save(user));
     }
 
-    public Optional<User> updateUser(Long id, User userDetails) {
+    public Optional<UserResponse> updateUser(Long id, UserRequest request) {
         return userRepository.findById(id).map(existingUser -> {
-            existingUser.setFirstName(userDetails.getFirstName());
-            existingUser.setLastName(userDetails.getLastName());
-            existingUser.setEmail(userDetails.getEmail());
+            existingUser.setEmail(request.email());
+            existingUser.setFirstName(request.firstName());
+            existingUser.setLastName(request.lastName());
 
-            return userRepository.save(existingUser);
+            return UserResponse.from(userRepository.save(existingUser));
         });
     }
 

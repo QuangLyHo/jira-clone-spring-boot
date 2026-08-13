@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import com.example.database_normalization.entity.Task;
+import com.example.database_normalization.dto.TaskRequest;
+import com.example.database_normalization.dto.TaskResponse;
+import com.example.database_normalization.entity.TaskStatus;
 import com.example.database_normalization.service.TaskService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -44,40 +47,40 @@ public class TaskControllerTest {
 
     @Test
     void getAllTasks_returnsJsonArrayOfTasks() throws Exception {
-        Task task = new Task();
-        task.setTitle("Fix login bug");
+        TaskResponse task = new TaskResponse(1L, "new task", TaskStatus.todo, null, Set.of());
+
         when(taskService.getAllTasks()).thenReturn(List.of(task));
 
         mockMvc.perform(get("/api/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title").value("Fix login bug"));
+                .andExpect(jsonPath("$[0].title").value("new task"));
     }
 
     @Test
     void createTask_returnsCreatedTask() throws Exception {
-        Task newTask = new Task();
+        TaskRequest request = new TaskRequest("new task", TaskStatus.todo, null, null);
+        TaskResponse response = new TaskResponse(1L, "new task", TaskStatus.todo, null, Set.of());
 
-        newTask.setTitle("New Task");
-        when(taskService.createTask(any(Task.class))).thenReturn(newTask);
+        when(taskService.createTask(any(TaskRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newTask)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value("New Task"));
+                .andExpect(jsonPath("$.title").value("new task"));
     }
 
     @Test
     void getTaskById_whenTaskExists_returnsTask() throws Exception {
-        Task task = new Task();
-        task.setTitle("new task");
+        TaskResponse task = new TaskResponse(1L, "new task", TaskStatus.todo, null, Set.of());
 
         when(taskService.getTaskById(1L)).thenReturn(Optional.of(task));
 
         mockMvc.perform(get("/api/tasks/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("new task"));
+
     }
 
     @Test
@@ -90,28 +93,27 @@ public class TaskControllerTest {
 
     @Test
     void updateTask_whenTaskExists_returnsUpdatedTask() throws Exception {
-        Task updatedTask = new Task();
+        TaskRequest request = new TaskRequest("new task", TaskStatus.todo, null, Set.of());
+        TaskResponse response = new TaskResponse(1L, "new task", TaskStatus.todo, null, Set.of());
 
-        updatedTask.setTitle("Updated title");
-        when(taskService.updateTask(eq(1L), any(Task.class))).thenReturn(Optional.of(updatedTask));
+        when(taskService.updateTask(eq(1L), any(TaskRequest.class))).thenReturn(Optional.of(response));
 
         mockMvc.perform(put("/api/tasks/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedTask)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Updated title"));
+                .andExpect(jsonPath("$.title").value("new task"));
     }
 
     @Test
     void updateTask_whenTaskDoesNotExist_returns404() throws Exception {
-        Task validTask = new Task();
-        validTask.setTitle("Valid title");
+        TaskRequest request = new TaskRequest("new task", TaskStatus.todo, null, Set.of());
         
-        when(taskService.updateTask(eq(99L), any(Task.class))).thenReturn(Optional.empty());
+        when(taskService.updateTask(eq(99L), any(TaskRequest.class))).thenReturn(Optional.empty());
         
         mockMvc.perform(put("/api/tasks/99")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(validTask)))
+                    .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
     }
     
@@ -133,12 +135,11 @@ public class TaskControllerTest {
 
     @Test
     void createTask_withBlankTitle_returns400WithFieldError() throws Exception {
-        Task invalidTask = new Task();
-        invalidTask.setTitle("");
+        TaskRequest invalidRequest = new TaskRequest("", TaskStatus.todo, null, null);
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidTask)))
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Title is required"));
     }

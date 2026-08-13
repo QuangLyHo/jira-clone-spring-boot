@@ -13,7 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
+import java.util.Set;
 
+import com.example.database_normalization.dto.TaskRequest;
+import com.example.database_normalization.dto.TaskResponse;
 import com.example.database_normalization.entity.Task;
 import com.example.database_normalization.repository.TaskRepository;
 import com.example.database_normalization.entity.TaskStatus;
@@ -35,11 +38,53 @@ public class TaskServiceTest {
         task.setTitle("Fix login bug");
         when(taskRepository.findAllWithAssignees()).thenReturn(List.of(task));
 
-        List<Task> result = taskService.getAllTasks();
+        List<TaskResponse> result = taskService.getAllTasks();
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getTitle()).isEqualTo("Fix login bug");
+        assertThat(result.get(0).title()).isEqualTo("Fix login bug");
         verify(taskRepository).findAllWithAssignees();
+    }
+
+    @Test
+    void getAllTaskById_whenTaskExists_returnsTasks() {
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("New title");
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+
+        Optional<TaskResponse> result = taskService.getTaskById(1L);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().title()).isEqualTo("New title");
+        verify(taskRepository).findById(1L);
+    }
+
+    @Test
+    void getTaskById_whenTaskDoesNotExist_returnsEmptyOptional() {
+        when(taskRepository.findById(99L)).thenReturn(Optional.empty());
+
+        Optional<TaskResponse> result = taskService.getTaskById(99L);
+
+        assertThat(result).isEmpty();
+        verify(taskRepository).findById(99L);
+    }
+
+    @Test
+    void createTask_savesAndReturnsTask() {
+        TaskRequest request = new TaskRequest("New Title", TaskStatus.todo, null, Set.of());
+
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> {
+            Task savedTask = invocation.getArgument(0);
+            savedTask.setId(1L);
+            return savedTask;
+        });
+
+        TaskResponse result = taskService.createTask(request);
+
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.title()).isEqualTo("New Title");
+        verify(taskRepository).save(any(Task.class));
     }
     
     @Test
@@ -49,27 +94,27 @@ public class TaskServiceTest {
         existingTask.setTitle("Old title");
         existingTask.setStatus(TaskStatus.todo);
 
-        Task updatedDetails = new Task();
-        updatedDetails.setTitle("New title");
-        updatedDetails.setStatus(TaskStatus.in_progress);
+        TaskRequest request = new TaskRequest("New title", TaskStatus.todo, null, Set.of());
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(existingTask)).thenReturn(existingTask);
 
-        Optional<Task> result = taskService.updateTask(1L, updatedDetails);
+        Optional<TaskResponse> result = taskService.updateTask(1L, request);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getTitle()).isEqualTo("New title");
-        assertThat(result.get().getStatus()).isEqualTo(TaskStatus.in_progress);
+        assertThat(result.get().title()).isEqualTo("New title");
+        assertThat(result.get().status()).isEqualTo(TaskStatus.todo);
         verify(taskRepository).save(existingTask);
     }
 
     @Test
     void updateTask_whenTaskDoesNotExist_returnsEmptyOptional() {
+        TaskRequest request = new TaskRequest("New title", TaskStatus.done, null, Set.of());
+        
         when(taskRepository.findById(99L)).thenReturn(Optional.empty());
 
 
-        Optional<Task> result = taskService.updateTask(99L, new Task());
+        Optional<TaskResponse> result = taskService.updateTask(99L, request);
 
         assertThat(result).isEmpty();
         verify(taskRepository, never()).save(any());
