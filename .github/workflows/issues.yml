@@ -21,7 +21,7 @@ jobs:
 
                     const labels = [];
                     if (text.includes("bug")) labels.push("bug");
-                    if (text.includes("feature") ||(text.includes("features") || text.includes("enhancement")) {
+                    if (text.includes("feature") || text.includes("features") || text.includes("enhancement")) {
                         labels.push("enhancement");
                     }
                     if (text.includes("question")) labels.push("question");
