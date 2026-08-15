@@ -2,11 +2,33 @@ name: Handle Issues
 
 on:
     issues:
-        types: [ opened, edited ]
+        types: [ opened ]
+
+permissions:
+    issues: write
 
 jobs:
-    log-issue:
+    auto-label:
         runs-on: ubuntu-latest
         steps:
-            - name: Output issue details
-              run: echo "${{ toJson(github.event) }}"
+            - name: Auto-label based on title/body
+              uses: actions/github-script@v7
+              with:
+                script: |
+                    const title = context.payload.issue.title.toLowerCase();
+                    const body = (context.payload.issue.body || "").toLowerCase();
+                    const text = title + " " + body;
+
+                    const labels = [];
+                    if (text.includes("bug")) labels.push("bug");
+                    if (text.includes("features") || text.includes("enhancement")) 
+                        labels.push("enhancement");
+                    if (text.includes("question")) labels.push("questions");
+                    if (text.length > 0) {
+                        await github.rest.issues.addLabels({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: context.payload.issue.number,
+                            labels: labels
+                        });
+                    }
