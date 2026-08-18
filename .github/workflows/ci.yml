@@ -23,4 +23,6 @@ jobs:
             
             - name: Run tests
               run: ./mvnw test
+              env:
+                JWT_SECRET: ${{ secrets.JWT_SECRET }}
                 
