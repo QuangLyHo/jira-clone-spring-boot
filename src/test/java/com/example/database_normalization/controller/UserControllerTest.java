@@ -15,7 +15,9 @@ import java.util.Optional;
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,13 +26,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.example.database_normalization.dto.UserRequest;
 import com.example.database_normalization.dto.UserResponse;
+import com.example.database_normalization.security.JwtService;
 import com.example.database_normalization.service.UserService;
 
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -39,6 +43,12 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @Test
     void getAllUsers_returnsJsonArrayOfUsers() throws Exception {
