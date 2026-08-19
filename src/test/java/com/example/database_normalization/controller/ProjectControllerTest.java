@@ -18,20 +18,25 @@ import java.util.Optional;
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 import com.example.database_normalization.dto.ProjectRequest;
 import com.example.database_normalization.dto.ProjectResponse;
+import com.example.database_normalization.security.JwtService;
 import com.example.database_normalization.service.ProjectService;
 import com.example.database_normalization.service.TaskService;
 
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(ProjectController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ProjectControllerTest {
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -43,6 +48,12 @@ public class ProjectControllerTest {
 
     @MockitoBean
     private TaskService taskService;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @Test
     void getAllProjects_returnsJsonArrayOfProjects() throws Exception {

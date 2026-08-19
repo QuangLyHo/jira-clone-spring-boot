@@ -24,18 +24,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.example.database_normalization.dto.TaskRequest;
 import com.example.database_normalization.dto.TaskResponse;
 import com.example.database_normalization.entity.TaskStatus;
+import com.example.database_normalization.security.JwtService;
 import com.example.database_normalization.service.TaskService;
 
 import tools.jackson.databind.ObjectMapper;
 
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 
 
 @WebMvcTest(TaskController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class TaskControllerTest {
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -44,6 +48,12 @@ public class TaskControllerTest {
 
     @MockitoBean
     private TaskService taskService;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @Test
     void getAllTasks_returnsJsonArrayOfTasks() throws Exception {

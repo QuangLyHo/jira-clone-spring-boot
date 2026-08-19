@@ -27,7 +27,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<Map<String, String>> 
+    handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
 
@@ -35,7 +36,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
+    public ResponseEntity<Map<String, String>> 
+    handleBadCredentials(BadCredentialsException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "Invalid email or password");
 
