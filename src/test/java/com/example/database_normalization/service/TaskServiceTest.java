@@ -8,11 +8,17 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 import java.util.Set;
 
@@ -20,6 +26,7 @@ import com.example.database_normalization.dto.TaskRequest;
 import com.example.database_normalization.dto.TaskResponse;
 import com.example.database_normalization.entity.Project;
 import com.example.database_normalization.entity.Task;
+import com.example.database_normalization.entity.User;
 import com.example.database_normalization.repository.ProjectRepository;
 import com.example.database_normalization.repository.TaskRepository;
 import com.example.database_normalization.repository.UserRepository;
@@ -34,14 +41,26 @@ public class TaskServiceTest {
     @Mock
     private TaskRepository taskRepository;
 
-    @Mock 
+    @Mock
     ProjectRepository projectRepository;
 
-    @Mock 
+    @Mock
     UserRepository userRepository;
 
     @InjectMocks
     private TaskService taskService;
+
+    @BeforeEach
+    void authenticateAsAdmin() {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                "admin@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     void getAllTasks_delegatesToRepositoryAndReturnsResult() {
@@ -133,7 +152,10 @@ public class TaskServiceTest {
 
     @Test
     void deleteTask_whenTaskExists_deletesAndReturnsTrue() {
-        when(taskRepository.existsById(1L)).thenReturn(true);
+        Task existingTask = new Task();
+        existingTask.setId(1L);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
 
         boolean result = taskService.deleteTask(1L);
 
@@ -143,12 +165,60 @@ public class TaskServiceTest {
 
     @Test
     void deleteTask_whenTaskDoesNotExist_returnsFalseWithoutDeleting() {
-        when(taskRepository.existsById(99L)).thenReturn(false);
+        when(taskRepository.findById(99L)).thenReturn(Optional.empty());
 
         boolean result = taskService.deleteTask(99L);
 
         assertThat(result).isFalse();
         verify(taskRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void updateTask_whenUserIsAssignee_succeeds() {
+        User assignee = new User();
+        assignee.setEmail("assignee@example.com");
+
+        Task existingTask = new Task();
+        existingTask.setId(1L);
+        existingTask.setTitle("Old title");
+        existingTask.setAssignees(Set.of(assignee));
+
+        TaskRequest request = new TaskRequest("New title", TaskStatus.todo, null, Set.of());
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                "assignee@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
+        when(taskRepository.save(existingTask)).thenReturn(existingTask);
+
+        Optional<TaskResponse> result = taskService.updateTask(1L, request);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().title()).isEqualTo("New title");
+    }
+
+    @Test
+    void updateTask_whenUserIsNotAssigneeOrAdmin_throwsAccessDeniedException() {
+        User assignee = new User();
+        assignee.setEmail("assignee@example.com");
+
+        Task existingTask = new Task();
+        existingTask.setId(1L);
+        existingTask.setAssignees(Set.of(assignee));
+
+        TaskRequest request = new TaskRequest("New title", TaskStatus.todo, null, Set.of());
+
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                "someone-else@example.com", null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
+
+        assertThatThrownBy(() -> taskService.updateTask(1L, request))
+                .isInstanceOf(AccessDeniedException.class);
+
+        verify(taskRepository, never()).save(any());
     }
 
     @Test
