@@ -1,27 +1,61 @@
 # Jira Clone (Spring Boot)
 
-A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeaver, and Docker — modeled after Jira's core concepts (tickets/tasks, assignees, status workflow).
+A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeaver, and Docker — modeled after Jira's core concepts (tickets/tasks, assignees, status workflow, projects, auth, and access control).
 
 ## Stack
 - Java 25
-- Spring Boot 4.1 (Web, Data JPA, Actuator)
+- Spring Boot 4.1 (Web, Data JPA, Validation, Actuator)
+- Spring Security 7 + JWT (`jjwt`) for stateless authentication/authorization
 - MySQL (via Docker)
-- DBeaver for schema design/inspection
+- Flyway for versioned schema migrations
+- Testcontainers for integration tests (spins up a real, disposable MySQL per test run)
+- springdoc-openapi for interactive API docs (Swagger UI)
+- GitHub Actions for CI
+- DBeaver for schema inspection
 
 ## Current state
-- `User` and `Task` entities with a many-to-many relationship (`task_assignees` join table)
-- `TaskStatus` enum (todo / in_progress / done)
-- Repository layer with a custom JPQL query (`JOIN FETCH`) to avoid N+1 when loading task assignees
-- Schema is hand-designed in MySQL; Hibernate runs with `ddl-auto=validate` so entities are checked against the schema rather than generating it
+
+**Domain model**
+- `User`, `Task`, `Project` entities
+- `Task` ↔ `User` many-to-many (`task_assignees` join table)
+- `Task` → `Project` many-to-one
+- `TaskStatus` enum (todo / in_progress / done), `Role` enum (USER / ADMIN)
+
+**API**
+- Full CRUD for `/api/tasks`, `/api/users`, `/api/projects`, plus `GET /api/projects/{id}/tasks`
+- Request/response DTOs (not raw entities) at the API boundary
+- Bean Validation on all inputs, with a global exception handler producing consistent JSON error responses
+- Interactive docs at `/swagger-ui/index.html`
+
+**Auth & access control**
+- `POST /api/auth/register` / `POST /api/auth/login` — passwords hashed with BCrypt, login issues a signed JWT
+- Every other endpoint requires a valid `Authorization: Bearer <token>` header
+- Authorization rules:
+  - Projects: only `ADMIN` can create/update/delete; any authenticated user can read
+  - Tasks: only a task's assignees (or an `ADMIN`) can update/delete it; any authenticated user can create/read
+- Role changes take effect immediately (checked fresh from the DB on every request, not baked into the token)
+
+**Data & testing**
+- Schema is owned by Flyway migrations (`src/main/resources/db/migration`), not hand-edited SQL
+- Hibernate runs with `ddl-auto=validate` — it checks entities against the Flyway-built schema rather than generating it
+- Full test suite: unit tests (service layer), `@WebMvcTest` controller-slice tests, and a real integration test backed by Testcontainers — all self-contained, no manual DB setup required
+- CI runs the full suite on every push/PR via GitHub Actions
 
 ## Running locally
-1. Start a MySQL container and create the `data_normalization` database/schema.
-2. Set `DB_USERNAME` and `DB_PASSWORD` environment variables.
+
+1. Start a MySQL container (e.g. `docker run` or your existing one) — Flyway will build the schema automatically on first run.
+2. Set three environment variables: `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` (generate the latter with `openssl rand -base64 32`).
 3. `./mvnw spring-boot:run`
 
+## Running tests
+
+```
+./mvnw test
+```
+No local MySQL or env vars required — the integration test spins up its own MySQL via Testcontainers, and Flyway builds its schema from the same migrations used in step 1 above.
+
 ## Roadmap
-- REST controllers + service layer for tickets
-- Projects/boards, priorities, labels, comments
-- Status transition rules
-- Docker Compose for app + MySQL
-- Versioned schema migrations (Flyway)
+- Pagination/filtering on list endpoints
+- Dockerfile + docker-compose for the app itself
+- Deploy to a live host
+- Frontend (last, once there's something live to point it at)
