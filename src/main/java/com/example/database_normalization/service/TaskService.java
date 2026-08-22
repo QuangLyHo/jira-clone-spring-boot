@@ -6,10 +6,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.example.database_normalization.dto.TaskRequest;
 import com.example.database_normalization.dto.TaskResponse;
 import com.example.database_normalization.entity.Project;
+
 import com.example.database_normalization.entity.Task;
 import com.example.database_normalization.entity.User;
 import com.example.database_normalization.repository.ProjectRepository;
@@ -58,6 +62,8 @@ public class TaskService {
 
     public Optional<TaskResponse> updateTask(Long id, TaskRequest request) {
         return taskRepository.findById(id).map(existingTask -> {
+            checkTaskAccess(existingTask);
+
             existingTask.setTitle(request.title());
             existingTask.setStatus(request.status());
 
@@ -69,10 +75,13 @@ public class TaskService {
     }
 
     public boolean deleteTask(Long id) {
-        if (!taskRepository.existsById(id)) {
+        Optional<Task> existingTask = taskRepository.findById(id);
+
+        if (existingTask.isEmpty()) {
             return false;
         }
 
+        checkTaskAccess(existingTask.get());
         taskRepository.deleteById(id);
         return true;
     }
@@ -92,6 +101,21 @@ public class TaskService {
         }
 
         return new HashSet<>(userRepository.findAllById(assigneeIds));
+    }
+
+    private void checkTaskAccess(Task task) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentEmail = authentication.getName();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+            
+        boolean isAssignee = task.getAssignees().stream()
+                    .anyMatch(user -> user.getEmail().equals(currentEmail));
+
+        if (!isAdmin && !isAssignee) {
+            throw new AccessDeniedException("You are not authorized to modify this task");
+        }
     }
 }
 
