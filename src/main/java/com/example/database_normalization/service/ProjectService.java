@@ -3,6 +3,7 @@ package com.example.database_normalization.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.example.database_normalization.dto.ProjectRequest;
@@ -29,6 +30,7 @@ public class ProjectService {
         return projectRepository.findById(id).map(ProjectResponse::from);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public ProjectResponse createProject(ProjectRequest request) {
         Project project = new Project();
 
@@ -38,6 +40,7 @@ public class ProjectService {
         return ProjectResponse.from(projectRepository.save(project));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public Optional<ProjectResponse> updateProject(Long id, ProjectRequest request) {
         return projectRepository.findById(id).map(existingProject -> {
             existingProject.setName(request.name());
@@ -47,6 +50,7 @@ public class ProjectService {
         });
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean deleteProject(Long id) {
         if (!projectRepository.existsById(id)) return false;
 
