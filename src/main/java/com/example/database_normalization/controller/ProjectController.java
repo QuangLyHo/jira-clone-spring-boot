@@ -2,6 +2,8 @@ package com.example.database_normalization.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,8 +38,8 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectResponse>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+    public ResponseEntity<Page<ProjectResponse>> getAllProjects(Pageable pageable) {
+        return ResponseEntity.ok(projectService.getAllProjects(pageable));
     }
 
     @GetMapping("/{id}")

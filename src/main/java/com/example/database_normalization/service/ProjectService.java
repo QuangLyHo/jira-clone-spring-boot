@@ -1,8 +1,9 @@
 package com.example.database_normalization.service;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -13,17 +14,16 @@ import com.example.database_normalization.repository.ProjectRepository;
 
 @Service
 public class ProjectService {
-    
+
     private final ProjectRepository projectRepository;
 
     public ProjectService(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
     }
 
-    public List<ProjectResponse> getAllProjects() {
-        return projectRepository.findAll().stream()
-                .map(ProjectResponse::from)
-                .toList();
+    public Page<ProjectResponse> getAllProjects(Pageable pageable) {
+        return projectRepository.findAll(pageable)
+                .map(ProjectResponse::from);
     }
 
     public Optional<ProjectResponse> getProjectById(Long id) {
