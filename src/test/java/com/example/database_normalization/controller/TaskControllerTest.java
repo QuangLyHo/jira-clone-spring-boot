@@ -31,6 +31,9 @@ import tools.jackson.databind.ObjectMapper;
 
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -58,13 +61,14 @@ public class TaskControllerTest {
     @Test
     void getAllTasks_returnsJsonArrayOfTasks() throws Exception {
         TaskResponse task = new TaskResponse(1L, "new task", TaskStatus.todo, null, Set.of());
+        Page<TaskResponse> page = new PageImpl<>(List.of(task));
 
-        when(taskService.getAllTasks()).thenReturn(List.of(task));
+        when(taskService.getAllTasks(any(Pageable.class), eq(null))).thenReturn(page);
 
         mockMvc.perform(get("/api/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title").value("new task"));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].title").value("new task"));
     }
 
     @Test
