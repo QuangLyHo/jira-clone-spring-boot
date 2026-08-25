@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.example.database_normalization.dto.ProjectRequest;
 import com.example.database_normalization.dto.ProjectResponse;
@@ -37,12 +41,16 @@ public class ProjectServiceTest {
         project.setName("Mobile App v1");
         project.setBudget(new BigDecimal("500000.00"));
 
-        when(projectRepository.findAll()).thenReturn(List.of(project));
-        List<ProjectResponse> result = projectService.getAllProjects();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Project> projectPage = new PageImpl<>(List.of(project), pageable, 1);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).name()).isEqualTo("Mobile App v1");
-        verify(projectRepository).findAll();
+        when(projectRepository.findAll(pageable)).thenReturn(projectPage);
+
+        Page<ProjectResponse> result = projectService.getAllProjects(pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).name()).isEqualTo("Mobile App v1");
+        verify(projectRepository).findAll(pageable);
     }
 
     @Test

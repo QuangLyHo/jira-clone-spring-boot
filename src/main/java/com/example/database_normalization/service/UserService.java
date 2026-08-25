@@ -1,8 +1,9 @@
 package com.example.database_normalization.service;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.database_normalization.dto.UserRequest;
@@ -12,17 +13,16 @@ import com.example.database_normalization.repository.UserRepository;
 
 @Service
 public class UserService {
-    
+
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(UserResponse::from)
-                .toList();
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(UserResponse::from);
     }
 
     public Optional<UserResponse> getUserById(Long id) {

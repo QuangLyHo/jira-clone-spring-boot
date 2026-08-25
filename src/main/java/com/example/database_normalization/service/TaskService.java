@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -15,6 +17,7 @@ import com.example.database_normalization.dto.TaskResponse;
 import com.example.database_normalization.entity.Project;
 
 import com.example.database_normalization.entity.Task;
+import com.example.database_normalization.entity.TaskStatus;
 import com.example.database_normalization.entity.User;
 import com.example.database_normalization.repository.ProjectRepository;
 import com.example.database_normalization.repository.TaskRepository;
@@ -33,10 +36,12 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public List<TaskResponse> getAllTasks() {
-        return taskRepository.findAllWithAssignees().stream()
-                .map(TaskResponse::from)
-                .toList();
+    public Page<TaskResponse> getAllTasks(Pageable pageable, TaskStatus status) {
+        Page<Task> tasks = status != null
+                ? taskRepository.findByStatus(status, pageable)
+                : taskRepository.findAll(pageable);
+
+        return tasks.map(TaskResponse::from);
     }
 
     public Optional<TaskResponse> getTaskById(Long id) {

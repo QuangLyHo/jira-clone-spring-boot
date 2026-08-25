@@ -15,6 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -66,13 +70,35 @@ public class TaskServiceTest {
     void getAllTasks_delegatesToRepositoryAndReturnsResult() {
         Task task = new Task();
         task.setTitle("Fix login bug");
-        when(taskRepository.findAllWithAssignees()).thenReturn(List.of(task));
 
-        List<TaskResponse> result = taskService.getAllTasks();
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task), pageable, 1);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).title()).isEqualTo("Fix login bug");
-        verify(taskRepository).findAllWithAssignees();
+        when(taskRepository.findAll(pageable)).thenReturn(taskPage);
+
+        Page<TaskResponse> result = taskService.getAllTasks(pageable, null);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Fix login bug");
+        verify(taskRepository).findAll(pageable);
+    }
+
+    @Test
+    void getAllTasks_withStatusFilter_delegatesToFindByStatus() {
+        Task task = new Task();
+        task.setTitle("In progress task");
+        task.setStatus(TaskStatus.in_progress);
+
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<Task> taskPage = new PageImpl<>(List.of(task), pageable, 1);
+
+        when(taskRepository.findByStatus(TaskStatus.in_progress, pageable)).thenReturn(taskPage);
+
+        Page<TaskResponse> result = taskService.getAllTasks(pageable, TaskStatus.in_progress);
+
+        assertThat(result.getContent()).hasSize(1);
+        verify(taskRepository).findByStatus(TaskStatus.in_progress, pageable);
+        verify(taskRepository, never()).findAll(any(Pageable.class));
     }
 
     @Test

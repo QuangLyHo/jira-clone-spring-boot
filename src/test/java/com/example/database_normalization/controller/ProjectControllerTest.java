@@ -20,6 +20,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -58,13 +61,14 @@ public class ProjectControllerTest {
     @Test
     void getAllProjects_returnsJsonArrayOfProjects() throws Exception {
         ProjectResponse project = new ProjectResponse(1L, "name", new BigDecimal("100.00"));
+        Page<ProjectResponse> page = new PageImpl<>(List.of(project));
 
-        when(projectService.getAllProjects()).thenReturn(List.of(project));
+        when(projectService.getAllProjects(any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/projects"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name").value("name"));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].name").value("name"));
     }
 
     @Test
