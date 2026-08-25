@@ -14,6 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.example.database_normalization.dto.UserRequest;
 import com.example.database_normalization.dto.UserResponse;
@@ -37,13 +40,16 @@ public class UserServiceTest {
         user.setFirstName("Greg");
         user.setLastName("Hardy");
 
-        when(userRepository.findAll()).thenReturn(List.of(user));
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<User> userPage = new PageImpl<>(List.of(user), pageable, 1);
 
-        List<UserResponse> result = userService.getAllUsers();
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).email()).isEqualTo("Greg@testEmail.com");
-        verify(userRepository).findAll();
+        Page<UserResponse> result = userService.getAllUsers(pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).email()).isEqualTo("Greg@testEmail.com");
+        verify(userRepository).findAll(pageable);
     }
 
     @Test

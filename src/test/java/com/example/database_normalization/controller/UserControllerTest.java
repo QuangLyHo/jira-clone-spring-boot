@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -53,13 +56,14 @@ public class UserControllerTest {
     @Test
     void getAllUsers_returnsJsonArrayOfUsers() throws Exception {
         UserResponse user = new UserResponse(1L, "new@gmail.com", "first", "last");
+        Page<UserResponse> page = new PageImpl<>(List.of(user));
 
-        when(userService.getAllUsers()).thenReturn(List.of(user));
+        when(userService.getAllUsers(any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].email").value("new@gmail.com"));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].email").value("new@gmail.com"));
     }
 
     @Test
