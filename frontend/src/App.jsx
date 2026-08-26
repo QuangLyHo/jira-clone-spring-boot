@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AuthPage from "./AuthPage";
+import TaskList from "./TaskList";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -10,8 +11,8 @@ function App() {
 
   return (
     <div>
-      <h1>Logged in</h1>
-      <p>You have a valid JWT. Backend connection confirmed.</p>
+      <h1>Tasks</h1>
+      <TaskList token={token} />
       <button onClick={() => setToken(null)}>Log out</button>
     </div>
   );

@@ -1,10 +1,13 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-async function request(path, body) {
+async function request(path, { method = "GET", body, token } = {}) {
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    
     const response = await fetch(`${API_URL}${path}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
     });
 
     const text = await response.text();
@@ -18,10 +21,15 @@ async function request(path, body) {
     return data;
 }
 
-export function login({ email, password }) {
-    return request("/api/auth/login", { email, password });
+export function login(body) {
+    return request("/api/auth/login", { method: "POST", body });
 }
 
-export function register({ email, password, firstName, lastName }) {
-    return request("/api/auth/register", { email, password, firstName, lastName });
+export function register(body) {
+    return request("/api/auth/register", { method: "POST", body });
 }
+
+export function getTasks(token) {
+    return request("/api/tasks", { token });
+}
+
