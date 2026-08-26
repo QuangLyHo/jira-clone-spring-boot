@@ -33,3 +33,6 @@ export function getTasks(token) {
     return request("/api/tasks", { token });
 }
 
+export function createTask(body, token) {
+    return request("/api/tasks", { method: "POST", body, token});
+}
