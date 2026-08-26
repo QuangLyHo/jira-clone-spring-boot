@@ -24,8 +24,8 @@ A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeave
 
 **API**
 - Full CRUD for `/api/tasks`, `/api/users`, `/api/projects`, plus `GET /api/projects/{id}/tasks`
-- Pagination and sorting on all list endpoints (`page`, `size`, `sort=property,direction`), plus status filtering on `GET /api/tasks`
-- Request/response DTOs (not raw entities) at the API boundary
+- Pagination and sorting on all list endpoints, plus status filtering on `GET /api/tasks`
+- Request/response DTOs at the API boundary
 - Bean Validation on all inputs, with a global exception handler producing consistent JSON error responses
 - Interactive docs at `/swagger-ui/index.html`
 
@@ -35,10 +35,10 @@ A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeave
 - Authorization rules:
   - Projects: only `ADMIN` can create/update/delete; any authenticated user can read
   - Tasks: only a task's assignees (or an `ADMIN`) can update/delete it; any authenticated user can create/read
-- Role changes take effect immediately (checked fresh from the DB on every request, not baked into the token)
+- Role changes take effect immediately
 
 **Data & testing**
-- Schema is owned by Flyway migrations (`src/main/resources/db/migration`), not hand-edited SQL
+- Schema is owned by Flyway migrations (`src/main/resources/db/migration`)
 - Hibernate runs with `ddl-auto=validate` — it checks entities against the Flyway-built schema rather than generating it
 - Full test suite: unit tests (service layer), `@WebMvcTest` controller-slice tests, and a real integration test backed by Testcontainers — all self-contained, no manual DB setup required
 - CI runs the full suite on every push/PR via GitHub Actions
