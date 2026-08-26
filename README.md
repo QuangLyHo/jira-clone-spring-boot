@@ -7,6 +7,7 @@ A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeave
 - Spring Boot 4.1 (Web, Data JPA, Validation, Actuator)
 - Spring Security 7 + JWT (`jjwt`) for stateless authentication/authorization
 - MySQL (via Docker)
+- Docker + Docker Compose (app and MySQL both run containerized)
 - Flyway for versioned schema migrations
 - Testcontainers for integration tests (spins up a real, disposable MySQL per test run)
 - springdoc-openapi for interactive API docs (Swagger UI)
@@ -23,6 +24,7 @@ A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeave
 
 **API**
 - Full CRUD for `/api/tasks`, `/api/users`, `/api/projects`, plus `GET /api/projects/{id}/tasks`
+- Pagination and sorting on all list endpoints (`page`, `size`, `sort=property,direction`), plus status filtering on `GET /api/tasks`
 - Request/response DTOs (not raw entities) at the API boundary
 - Bean Validation on all inputs, with a global exception handler producing consistent JSON error responses
 - Interactive docs at `/swagger-ui/index.html`
@@ -43,6 +45,15 @@ A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeave
 
 ## Running locally
 
+**With Docker Compose (recommended)**
+
+1. Create a `.env` file in the project root with `MYSQL_ROOT_PASSWORD`, `DB_USERNAME`, `DB_PASSWORD`, and `JWT_SECRET` (generate the last one with `openssl rand -base64 32`).
+2. `docker compose up --build`
+
+This builds the app image, starts MySQL, creates a scoped `ticketing_app` DB user via `db-init/init.sql`, and runs Flyway migrations automatically. The API is available at `localhost:8080`.
+
+**Running the app directly (MySQL still via Docker)**
+
 1. Start a MySQL container (e.g. `docker run` or your existing one) — Flyway will build the schema automatically on first run.
 2. Set three environment variables: `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` (generate the latter with `openssl rand -base64 32`).
 3. `./mvnw spring-boot:run`
@@ -55,7 +66,5 @@ A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeave
 No local MySQL or env vars required — the integration test spins up its own MySQL via Testcontainers, and Flyway builds its schema from the same migrations used in step 1 above.
 
 ## Roadmap
-- Pagination/filtering on list endpoints
-- Dockerfile + docker-compose for the app itself
 - Deploy to a live host
 - Frontend (last, once there's something live to point it at)
