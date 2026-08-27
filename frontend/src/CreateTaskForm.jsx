@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createTask } from "./api";
 
-export default function CreateTaskForm({ token, onCreated }) {
+export default function CreateTaskForm({ token, projectId, onCreated }) {
     const [title, setTitle] = useState("");
     const [status, setStatus] = useState("todo");
     const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ export default function CreateTaskForm({ token, onCreated }) {
         setError(null);
 
         try {
-            await createTask({ title, status }, token);
+            await createTask({ title, status, projectId }, token);
             setTitle("");
             onCreated();
         } catch (err) {

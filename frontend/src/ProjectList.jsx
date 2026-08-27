@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getProjects, createProjects } from "./api";
+import { getProjects, createProject } from "./api";
 
-export default function ProjectList({ token, onSelect }) {
+export default function ProjectList({ token, onSelect, onLogout }) {
     const [projects, setProjects] = useState(null);
     const [error, setError] = useState(null);
     const [name, setName] = useState("");
@@ -24,7 +24,7 @@ export default function ProjectList({ token, onSelect }) {
         setError(null);
 
         try {
-            await createProjects({ name, budget: Number(budget) }, token);
+            await createProject({ name, budget: Number(budget) }, token);
             setName("");
             setBudget("");
             load();
@@ -48,6 +48,7 @@ export default function ProjectList({ token, onSelect }) {
             </form>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
+            <button onClick={onLogout}>Log out</button>
 
             {!projects ? (
                 <p>Waking up the server, this can take up to a minute...</p>
