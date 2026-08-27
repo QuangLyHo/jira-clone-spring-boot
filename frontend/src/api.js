@@ -48,3 +48,7 @@ export function createProject(body, token) {
 export function getProjectTasks(projectId, token) {
     return request(`/api/projects/${projectId}/tasks`, { token });
 }
+
+export function getUsers(token) {
+    return request("/api/users", { token });
+}

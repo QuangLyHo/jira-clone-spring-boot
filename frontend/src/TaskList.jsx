@@ -20,7 +20,11 @@ export default function TaskList({ token, projectId, refreshKey }) {
         <ul>
             {tasks.map((task) => (
                 <li key={task.id} style={{ listStyleType: "none" }} >
-                    {task.title} - {task.status}
+                    {task.title} - {task.status} - {
+                        task.assignees.length === 0
+                            ? "Unassigned"
+                            : task.assignees.map((a) => `${a.firstName} ${a.lastName}`).join(", ")
+                    }
                 </li>
             ))}
         </ul>
