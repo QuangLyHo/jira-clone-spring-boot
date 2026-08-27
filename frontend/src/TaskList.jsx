@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { getTasks } from "./api";
+import { getProjectTasks } from "./api";
 
-export default function TaskList({ token, refreshKey }) {
+export default function TaskList({ token, projectId, refreshKey }) {
     const [tasks, setTasks] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         setTasks(null);
-        getTasks(token)
-            .then((page) => setTasks(page.content))
+        getProjectTasks(projectId, token)
+            .then(setTasks)
             .catch((err) => setError(err.message));
-    }, [token, refreshKey]);
+    }, [token, projectId, refreshKey]);
 
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     if (!tasks) return <p>Waking up the server, this can take up to a minute...</p>;
