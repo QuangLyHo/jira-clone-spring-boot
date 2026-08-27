@@ -36,3 +36,15 @@ export function getTasks(token) {
 export function createTask(body, token) {
     return request("/api/tasks", { method: "POST", body, token});
 }
+
+export function getProjects(token) {
+    return request("/api/projects", { token });
+}
+
+export function createProject(body, token) {
+    return request("/api/projects", { method: "POST", body, token });
+}
+
+export function getProjectTasks(projectId, token) {
+    return request(`/api/projects/${projectId}/tasks`, { token });
+}
