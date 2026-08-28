@@ -8,7 +8,7 @@ export default function AuthPage({ onLogin }) {
     const [error, setError] = useState(null);
 
     function handleChange(e) {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        setForm(prevForm => ({ ...prevForm, [e.target.name]: e.target.value }));
     }
 
     async function handleSubmit(e) {
