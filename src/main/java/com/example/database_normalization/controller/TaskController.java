@@ -62,7 +62,7 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/status")
     public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id, @Valid @RequestBody TaskStatusUpdateRequest request) {
         return taskService.updateTaskStatus(id, request)
                 .map(ResponseEntity::ok)
