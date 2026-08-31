@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProjectTasks } from "./api";
 
-export default function TaskList({ token, projectId, refreshKey }) {
+export default function TaskList({ token, projectId, refreshKey, onAuthError }) {
     const [tasks, setTasks] = useState(null);
     const [error, setError] = useState(null);
 
@@ -9,7 +9,13 @@ export default function TaskList({ token, projectId, refreshKey }) {
         setTasks(null);
         getProjectTasks(projectId, token)
             .then(setTasks)
-            .catch((err) => setError(err.message));
+            .catch((err) => {
+                if (err.status === 401) {
+                    onAuthError();
+                } else {
+                    setError(err.message);
+                }
+            });
     }, [token, projectId, refreshKey]);
 
     if (error) return <p style={{ color: "red" }}>{error}</p>;

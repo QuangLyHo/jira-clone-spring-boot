@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createTask, getUsers } from "./api";
 
-export default function CreateTaskForm({ token, projectId, onCreated }) {
+export default function CreateTaskForm({ token, projectId, onCreated, onAuthError }) {
     const [title, setTitle] = useState("");
     const [status, setStatus] = useState("todo");
     const [assigneeIds, setAssigneeIds] = useState([]);
@@ -12,7 +12,13 @@ export default function CreateTaskForm({ token, projectId, onCreated }) {
     useEffect(() => {
         getUsers(token)
             .then((page) => setUsers(page.content))
-            .catch((err) => setError(err.message));
+            .catch((err) => {
+                if (err.status === 401) {
+                    onAuthError();
+                } else {
+                    setError(err.message);
+                }
+            });
     }, [token]);
 
     function handleAssigneeChange(e) {
@@ -31,7 +37,11 @@ export default function CreateTaskForm({ token, projectId, onCreated }) {
             setAssigneeIds([]);
             onCreated();
         } catch (err) {
-            setError(err.message);
+            if (err.status === 401) {
+                onAuthError();
+            } else {
+                setError(err.message);
+            }
         } finally {
             setLoading(false);
         }

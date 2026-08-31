@@ -9,6 +9,10 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  function handleAuthError() {
+    setToken(null);
+  }
+
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
@@ -22,7 +26,11 @@ function App() {
   }
 
   if (!selectedProject) {
-    return <ProjectList token={token} onSelect={setSelectedProject} onLogout={() => setToken(null)} />;
+    return <ProjectList 
+      token={token} 
+      onSelect={setSelectedProject} 
+      onLogout={() => setToken(null)}
+      onAuthError={handleAuthError} />;
   }
 
   return (
@@ -33,11 +41,13 @@ function App() {
       <CreateTaskForm 
         token={token} 
         projectId={selectedProject.id}
-        onCreated={() => setRefreshKey((k) => k + 1)} />
+        onCreated={() => setRefreshKey((k) => k + 1)}
+        onAuthError={handleAuthError} />
       <TaskList 
         token={token} 
         projectId={selectedProject.id}
-        refreshKey={refreshKey} />
+        refreshKey={refreshKey}
+        onAuthError={handleAuthError} />
 
       <button onClick={() => setToken(null)}>Log out</button>
     </div>
