@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProjects, createProject } from "./api";
 
-export default function ProjectList({ token, onSelect, onLogout }) {
+export default function ProjectList({ token, onSelect, onLogout, onAuthError }) {
     const [projects, setProjects] = useState(null);
     const [error, setError] = useState(null);
     const [name, setName] = useState("");
@@ -13,7 +13,13 @@ export default function ProjectList({ token, onSelect, onLogout }) {
 
         getProjects(token)
             .then((page) => setProjects(page.content))
-            .catch((err) => setError(err.message));
+            .catch((err) => {
+                if (err.status === 401) {
+                    onAuthError();
+                } else  {
+                    setError(err.message);
+                }
+            });
     }
 
     useEffect(load, [token]);
@@ -29,7 +35,11 @@ export default function ProjectList({ token, onSelect, onLogout }) {
             setBudget("");
             load();
         } catch (err) {
-            setError(err.message);
+            if (err.status === 401) {
+                onAuthError();
+            } else {
+                setError(err.message);
+            }
         } finally {
             setCreating(false);
         }

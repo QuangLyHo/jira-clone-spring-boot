@@ -15,7 +15,11 @@ async function request(path, { method = "GET", body, token } = {}) {
 
     if (!response.ok) {
         const message = data?.error ?? (data ? Object.values(data).join(", ") : `Request failed (${response.status})`);
-        throw new Error(message);
+        
+        const error = new Error(message);
+        error.status = response.status;
+
+        throw error;
     }
 
     return data;
