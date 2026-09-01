@@ -26,30 +26,32 @@ function App() {
   }
 
   if (!selectedProject) {
-    return <ProjectList 
-      token={token} 
-      onSelect={setSelectedProject} 
+    return <ProjectList
+      token={token}
+      onSelect={setSelectedProject}
       onLogout={() => setToken(null)}
       onAuthError={handleAuthError} />;
   }
 
   return (
-    <div>
-      <button onClick={() => setSelectedProject(null)}>← Back to projects</button>
+    <div className="app-shell">
+      <div className="topbar">
+        <button className="btn-secondary" onClick={() => setSelectedProject(null)}>← Back to projects</button>
+        <button className="btn-secondary" onClick={() => setToken(null)}>Log out</button>
+      </div>
+
       <h1>{selectedProject.name}</h1>
 
-      <CreateTaskForm 
-        token={token} 
+      <CreateTaskForm
+        token={token}
         projectId={selectedProject.id}
         onCreated={() => setRefreshKey((k) => k + 1)}
         onAuthError={handleAuthError} />
-      <TaskList 
-        token={token} 
+      <TaskList
+        token={token}
         projectId={selectedProject.id}
         refreshKey={refreshKey}
         onAuthError={handleAuthError} />
-
-      <button onClick={() => setToken(null)}>Log out</button>
     </div>
   );
 }

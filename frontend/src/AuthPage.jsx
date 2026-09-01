@@ -31,29 +31,36 @@ export default function AuthPage({ onLogin }) {
     }
 
     return (
-        <div>
-            <h1>{mode === "login" ? "Log in" : "Sign up"}</h1>
+        <div className="auth-shell">
+            <div className="card">
+                <h1 style={{ marginBottom: 20 }}>{mode === "login" ? "Log in" : "Sign up"}</h1>
 
-            <form onSubmit={handleSubmit}>
-                {mode === "register" && (
-                    <>
-                        <input name="firstName" placeholder="First name" value={form.firstName} onChange={handleChange} required ></input>
-                        <input name="lastName" placeholder="Last name" value={form.lastName} onChange={handleChange} required ></input>
-                    </>
-                )}
-                <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required></input>
-                <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required></input>
+                <form onSubmit={handleSubmit} className="form-stack">
+                    {mode === "register" && (
+                        <>
+                            <input name="firstName" placeholder="First name" value={form.firstName} onChange={handleChange} required />
+                            <input name="lastName" placeholder="Last name" value={form.lastName} onChange={handleChange} required />
+                        </>
+                    )}
+                    <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
+                    <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
 
-                <button type="submit" disabled={loading}>
-                    {loading ? "Waking up the server, this can take up to a minute..." : mode === "login" ? "Log in" : "Sign up"}
+                    <button type="submit" className="btn-primary" disabled={loading}>
+                        {loading ? "Waking up the server, this can take up to a minute..." : mode === "login" ? "Log in" : "Sign up"}
+                    </button>
+                </form>
+
+                {error && <p className="error-text" style={{ marginTop: 12 }}>{error}</p>}
+
+                <button
+                    type="button"
+                    className="btn-link"
+                    style={{ marginTop: 16 }}
+                    onClick={() => setMode(mode === "login" ? "register" : "login")}
+                >
+                    {mode === "login" ? "Need an account? Sign up" : "Already have an account? Log in"}
                 </button>
-            </form>
-
-            {error && <p style={{ color: "red" }}>{error}</p>}
-
-            <button type="button" onClick={() => setMode(mode === "login" ? "register" : "login")}> 
-                {mode === "login" ? "Need an account? Sign up" : "Already have an account? Log in"}
-            </button>
+            </div>
         </div>
     );
 }

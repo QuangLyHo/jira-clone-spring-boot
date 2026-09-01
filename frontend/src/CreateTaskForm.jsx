@@ -47,30 +47,34 @@ export default function CreateTaskForm({ token, projectId, onCreated, onAuthErro
         }
     }
     return (
-        <form onSubmit={handleSubmit}>
-            <input 
-                placeholder="Task title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-            />
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                <option value="todo">To do</option>
-                <option value="in_progress">In progress</option>
-                <option value="done">Done</option>
-            </select>
-            <select multiple value={assigneeIds} onChange={handleAssigneeChange}>
-                {users.map((user) => (
-                    <option key={user.id} value={user.id}>
-                        {user.firstName} {user.lastName}
-                    </option>
-                ))}
-            </select>
-            <button type="submit" disabled={loading}>
-                {loading ? "Adding..." : "Add task"}
-            </button>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-        </form>
+        <div className="card">
+            <form onSubmit={handleSubmit} className="form-stack">
+                <input
+                    placeholder="Task title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                />
+                <div className="form-row">
+                    <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                        <option value="todo">To do</option>
+                        <option value="in_progress">In progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                    <select multiple value={assigneeIds} onChange={handleAssigneeChange}>
+                        {users.map((user) => (
+                            <option key={user.id} value={user.id}>
+                                {user.firstName} {user.lastName}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <button type="submit" className="btn-primary" disabled={loading}>
+                    {loading ? "Adding..." : "Add task"}
+                </button>
+                {error && <p className="error-text">{error}</p>}
+            </form>
+        </div>
     );
-    
+
 }
