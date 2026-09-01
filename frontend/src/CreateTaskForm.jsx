@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { createTask, getUsers } from "./api";
+import AssigneePicker from "./AssigneePicker";
 
 export default function CreateTaskForm({ token, projectId, onCreated, onAuthError }) {
     const [title, setTitle] = useState("");
@@ -20,11 +21,6 @@ export default function CreateTaskForm({ token, projectId, onCreated, onAuthErro
                 }
             });
     }, [token]);
-
-    function handleAssigneeChange(e) {
-        const selected = Array.from(e.target.selectedOptions).map((opt) => Number(opt.value));
-        setAssigneeIds(selected);
-    }
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -61,16 +57,12 @@ export default function CreateTaskForm({ token, projectId, onCreated, onAuthErro
                         <option value="in_progress">In progress</option>
                         <option value="done">Done</option>
                     </select>
-                    <select multiple value={assigneeIds} onChange={handleAssigneeChange}>
-                        {users.map((user) => (
-                            <option key={user.id} value={user.id}>
-                                {user.firstName} {user.lastName}
-                            </option>
-                        ))}
-                    </select>
+                    <AssigneePicker users={users} selectedIds={assigneeIds} onChange={setAssigneeIds} />
                 </div>
                 <button type="submit" className="btn-primary" disabled={loading}>
-                    {loading ? "Adding..." : "Add task"}
+                    {loading ? (
+                        <span className="spinner spinner-current" />
+                    ) : "Add task"}
                 </button>
                 {error && <p className="error-text">{error}</p>}
             </form>
