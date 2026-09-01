@@ -45,8 +45,7 @@ export default function TaskList({ token, projectId, refreshKey, onAuthError }) 
                         task.assignees.length === 0
                             ? "Unassigned"
                             : task.assignees.map((a) => `${a.firstName} ${a.lastName}`).join(", ")
-                    }
-                    <select value={task.status} onChange={(e) => 
+                    } - <select value={task.status} onChange={(e) => 
                             handleStatusChange(task.id, e.target.value)}>
 
                         <option value="todo">To do</option>
