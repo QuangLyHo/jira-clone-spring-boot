@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.database_normalization.dto.TaskRequest;
 import com.example.database_normalization.dto.TaskResponse;
+import com.example.database_normalization.dto.TaskStatusUpdateRequest;
 import com.example.database_normalization.entity.TaskStatus;
 import com.example.database_normalization.service.TaskService;
 
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,6 +61,13 @@ public class TaskController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id, @Valid @RequestBody TaskStatusUpdateRequest request) {
+        return taskService.updateTaskStatus(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }    
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {

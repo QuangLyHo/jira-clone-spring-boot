@@ -41,6 +41,10 @@ export function createTask(body, token) {
     return request("/api/tasks", { method: "POST", body, token});
 }
 
+export function updateTaskStatus(id, status, token) {
+    return request(`/api/tasks/${id}/status`, { method: "PATCH", body: { status }, token });
+}
+
 export function getProjects(token) {
     return request("/api/projects", { token });
 }

@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.example.database_normalization.dto.TaskRequest;
 import com.example.database_normalization.dto.TaskResponse;
+import com.example.database_normalization.dto.TaskStatusUpdateRequest;
 import com.example.database_normalization.entity.Project;
 
 import com.example.database_normalization.entity.Task;
@@ -74,6 +75,16 @@ public class TaskService {
 
             existingTask.setProject(resolveProject(request.projectId()));
             existingTask.setAssignees(resolveAssignees(request.assigneeIds()));
+
+            return TaskResponse.from(taskRepository.save(existingTask));
+        });
+    }
+
+    public Optional<TaskResponse> updateTaskStatus(Long id, TaskStatusUpdateRequest request) {
+        return taskRepository.findById(id).map(existingTask -> {
+            checkTaskAccess(existingTask);
+
+            existingTask.setStatus(request.status());
 
             return TaskResponse.from(taskRepository.save(existingTask));
         });
