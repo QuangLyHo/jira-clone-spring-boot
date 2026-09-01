@@ -7,7 +7,7 @@ A full-stack project/task tracking app (Spring Boot backend + React frontend) bu
 - App: https://team-backlog.vercel.app
 - API docs (Swagger UI): https://jira-clone-spring-boot.onrender.com/swagger-ui/index.html
 
-The backend runs on Render's free tier, which spins down after ~15 minutes of inactivity. The first request after that can take up to a minute to wake back up — the frontend shows a loading message during this.
+The backend runs on Render's free tier, which spins down after ~15 minutes of inactivity. The first request after that can take up to a minute to wake back up.
 
 ## Stack
 
@@ -101,8 +101,3 @@ No local MySQL or env vars required — the integration test spins up its own My
 ## Roadmap
 
 - Team/workspace scoping — currently every authenticated user can see every project; adding team membership so projects are scoped to a team is the next planned feature
-- Kanban-style drag-and-drop board for changing task status
-- Task detail view with a description field
-- Priority field on tasks
-- Frontend search/filter/sort, using the pagination and sorting the backend already supports
-- Activity log per task
