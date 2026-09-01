@@ -33,25 +33,30 @@ export default function TaskList({ token, projectId, refreshKey, onAuthError }) 
         }
     }
 
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
-    if (!tasks) return <p>Waking up the server, this can take up to a minute...</p>;
-    if (tasks.length === 0) return <p>No tasks yet.</p>
+    if (error) return <p className="error-text">{error}</p>;
+    if (!tasks) return <p className="loading-text">Waking up the server, this can take up to a minute...</p>;
+    if (tasks.length === 0) return <p className="loading-text">No tasks yet.</p>;
 
     return (
-        <ul>
+        <ul className="list">
             {tasks.map((task) => (
-                <li key={task.id} style={{ listStyleType: "none" }} >
-                    {task.title} - {
-                        task.assignees.length === 0
-                            ? "Unassigned"
-                            : task.assignees.map((a) => `${a.firstName} ${a.lastName}`).join(", ")
-                    } - <select value={task.status} onChange={(e) => 
-                            handleStatusChange(task.id, e.target.value)}>
-
+                <li key={task.id} className="list-item">
+                    <div className="list-item-main">
+                        <span className="list-item-title">{task.title}</span>
+                        <span className="list-item-meta">
+                            {task.assignees.length === 0
+                                ? "Unassigned"
+                                : task.assignees.map((a) => `${a.firstName} ${a.lastName}`).join(", ")}
+                        </span>
+                    </div>
+                    <select
+                        className={`badge badge-${task.status}`}
+                        value={task.status}
+                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                    >
                         <option value="todo">To do</option>
                         <option value="in_progress">In progress</option>
                         <option value="done">Done</option>
-
                     </select>
                 </li>
             ))}

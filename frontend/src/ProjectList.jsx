@@ -46,30 +46,37 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
     }
 
     return (
-        <div>
-            <h1>Projects</h1>
+        <div className="app-shell">
+            <div className="topbar">
+                <h1>Projects</h1>
+                <button className="btn-secondary" onClick={onLogout}>Log out</button>
+            </div>
 
-            <form onSubmit={handleCreate}>
-                <input placeholder="Project name" value={name} onChange={(e) => setName(e.target.value)} required />
-                <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} />
-                <button type="submit" disabled={creating}>
-                    {creating ? "Creating..." : "Create project"}
-                </button>
-            </form>
+            <div className="card">
+                <form onSubmit={handleCreate} className="form-row">
+                    <input placeholder="Project name" value={name} onChange={(e) => setName(e.target.value)} required />
+                    <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} />
+                    <button type="submit" className="btn-primary" disabled={creating} style={{ flex: "none" }}>
+                        {creating ? "Creating..." : "Create project"}
+                    </button>
+                </form>
+            </div>
 
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <button onClick={onLogout}>Log out</button>
+            {error && <p className="error-text">{error}</p>}
 
             {!projects ? (
-                <p>Waking up the server, this can take up to a minute...</p>
+                <p className="loading-text">Waking up the server, this can take up to a minute...</p>
             ) : projects.length === 0 ? (
-                <p>No projects yet.</p>
+                <p className="loading-text">No projects yet.</p>
             ) : (
-                <ul>
+                <ul className="list">
                     {projects.map((project) => (
-                        <li key={project.id}>
-                            {project.name} 
-                            <button onClick={() => onSelect(project)}>
+                        <li key={project.id} className="list-item">
+                            <div className="list-item-main">
+                                <span className="list-item-title">{project.name}</span>
+                                <span className="list-item-meta">Budget: ${project.budget}</span>
+                            </div>
+                            <button className="btn-secondary" onClick={() => onSelect(project)}>
                                 View backlog
                             </button>
                         </li>
