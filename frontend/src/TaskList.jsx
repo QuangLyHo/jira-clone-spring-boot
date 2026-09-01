@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getProjectTasks, updateTaskStatus } from "./api";
+import Loading from "./Loading";
 
 export default function TaskList({ token, projectId, refreshKey, onAuthError }) {
     const [tasks, setTasks] = useState(null);
@@ -34,7 +35,7 @@ export default function TaskList({ token, projectId, refreshKey, onAuthError }) 
     }
 
     if (error) return <p className="error-text">{error}</p>;
-    if (!tasks) return <p className="loading-text">Waking up the server, this can take up to a minute...</p>;
+    if (!tasks) return <Loading />;
     if (tasks.length === 0) return <p className="loading-text">No tasks yet.</p>;
 
     return (

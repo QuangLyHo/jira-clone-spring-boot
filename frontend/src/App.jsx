@@ -3,6 +3,7 @@ import AuthPage from "./AuthPage";
 import TaskList from "./TaskList";
 import CreateTaskForm from "./CreateTaskForm";
 import ProjectList from "./ProjectList";
+import Brand from "./Brand";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -35,6 +36,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <Brand />
       <div className="topbar">
         <button className="btn-secondary" onClick={() => setSelectedProject(null)}>← Back to projects</button>
         <button className="btn-secondary" onClick={() => setToken(null)}>Log out</button>

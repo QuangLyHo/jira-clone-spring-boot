@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProjects, createProject } from "./api";
+import Loading from "./Loading";
+import Brand from "./Brand";
 
 export default function ProjectList({ token, onSelect, onLogout, onAuthError }) {
     const [projects, setProjects] = useState(null);
@@ -47,6 +49,7 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
 
     return (
         <div className="app-shell">
+            <Brand />
             <div className="topbar">
                 <h1>Projects</h1>
                 <button className="btn-secondary" onClick={onLogout}>Log out</button>
@@ -57,7 +60,9 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
                     <input placeholder="Project name" value={name} onChange={(e) => setName(e.target.value)} required />
                     <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} />
                     <button type="submit" className="btn-primary" disabled={creating} style={{ flex: "none" }}>
-                        {creating ? "Creating..." : "Create project"}
+                        {creating ? (
+                            <span className="spinner spinner-current" />
+                        ) : "Create project"}
                     </button>
                 </form>
             </div>
@@ -65,7 +70,7 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
             {error && <p className="error-text">{error}</p>}
 
             {!projects ? (
-                <p className="loading-text">Waking up the server, this can take up to a minute...</p>
+                <Loading />
             ) : projects.length === 0 ? (
                 <p className="loading-text">No projects yet.</p>
             ) : (
