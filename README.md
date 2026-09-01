@@ -1,6 +1,6 @@
-# Jira Clone (Spring Boot)
+# Team Backlog
 
-A backend ticketing system built while learning Java, Spring Boot, MySQL, DBeaver, and Docker — modeled after Jira's core concepts (tickets/tasks, assignees, status workflow, projects, auth, and access control).
+A full-stack project/task tracking app (backend + React frontend) built while learning Java, Spring Boot, MySQL, DBeaver, and Docker — supports projects, a per-project backlog of tasks, assignees, status workflow, JWT auth, and role-based access control.
 
 ## Stack
 - Java 25
