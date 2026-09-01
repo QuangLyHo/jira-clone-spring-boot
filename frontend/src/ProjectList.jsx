@@ -3,6 +3,16 @@ import { getProjects, createProject } from "./api";
 import Loading from "./Loading";
 import Brand from "./Brand";
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+});
+
+function formatCurrency(value) {
+    return currencyFormatter.format(value);
+}
+
 export default function ProjectList({ token, onSelect, onLogout, onAuthError }) {
     const [projects, setProjects] = useState(null);
     const [error, setError] = useState(null);
@@ -79,7 +89,7 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
                         <li key={project.id} className="list-item">
                             <div className="list-item-main">
                                 <span className="list-item-title">{project.name}</span>
-                                <span className="list-item-meta">Budget: ${project.budget}</span>
+                                <span className="list-item-meta">Budget: {formatCurrency(project.budget)}</span>
                             </div>
                             <button className="btn-secondary" onClick={() => onSelect(project)}>
                                 View backlog

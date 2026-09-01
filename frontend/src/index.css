@@ -266,6 +266,25 @@ select[multiple] {
   min-height: 96px;
 }
 
+@media (max-width: 600px) {
+  .app-shell {
+    padding: 24px 16px;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .list-item {
+    flex-wrap: wrap;
+  }
+}
+
 /* Assignee picker */
 
 .assignee-picker {
@@ -441,6 +460,27 @@ select.badge:focus {
 .loading-text {
   color: var(--text-muted);
   font-size: 14px;
+}
+
+@keyframes text-pulse {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.loading-pulse {
+  color: var(--text-muted);
+  font-size: 14px;
+  animation: text-pulse 3s ease-in-out infinite;
 }
 
 /* Spinner */
