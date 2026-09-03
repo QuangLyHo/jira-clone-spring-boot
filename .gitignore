@@ -32,7 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
-*.txt
 .DS_Store
 
 .env
+
+text
+*.txt

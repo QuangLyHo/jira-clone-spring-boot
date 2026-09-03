@@ -1,6 +1,5 @@
 package com.example.database_normalization.dto;
 
-import com.example.database_normalization.entity.Task;
 import com.example.database_normalization.entity.TaskStatus;
 
 import jakarta.validation.constraints.NotNull;
