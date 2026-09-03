@@ -93,7 +93,7 @@ public class ProjectControllerTest {
 
     @Test 
     void createProject_returnsCreatedProject() throws Exception {
-        ProjectRequest request = new ProjectRequest("new project", new BigDecimal("100.00"));
+        ProjectRequest request = new ProjectRequest("new project", new BigDecimal("100.00"), 1L);
         ProjectResponse response = new ProjectResponse(1L, "new project", new BigDecimal("100.00"));
 
         when(projectService.createProject(any(ProjectRequest.class))).thenReturn(response);
@@ -107,7 +107,7 @@ public class ProjectControllerTest {
 
     @Test
     void createProject_withBlankName_returns400WithFieldError() throws Exception {
-        ProjectRequest invalidRequest = new ProjectRequest("", new BigDecimal("10.00"));
+        ProjectRequest invalidRequest = new ProjectRequest("", new BigDecimal("10.00"), 1L);
 
         mockMvc.perform(post("/api/projects")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -118,7 +118,7 @@ public class ProjectControllerTest {
 
     @Test
     void updateProject_whenProjectExists_returnsUpdatedProject() throws Exception {
-        ProjectRequest request = new ProjectRequest("New Project", new BigDecimal("10000.00"));
+        ProjectRequest request = new ProjectRequest("New Project", new BigDecimal("10000.00"), 1L);
         ProjectResponse response = new ProjectResponse(1L, "New Project", new BigDecimal("10000.00"));
 
         when(projectService.updateProject(eq(1L), any(ProjectRequest.class))).thenReturn(Optional.of(response));
@@ -132,7 +132,7 @@ public class ProjectControllerTest {
 
     @Test
     void updatedProject_whenProjectDoesNotExist_returns404() throws Exception {
-        ProjectRequest request = new ProjectRequest("Valid name", new BigDecimal("10.00"));
+        ProjectRequest request = new ProjectRequest("Valid name", new BigDecimal("10.00"), 1L);
 
         when(projectService.updateProject(eq(99L), any(ProjectRequest.class))).thenReturn(Optional.empty());
 
