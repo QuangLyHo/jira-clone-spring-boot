@@ -3,10 +3,12 @@ import AuthPage from "./AuthPage";
 import TaskList from "./TaskList";
 import CreateTaskForm from "./CreateTaskForm";
 import ProjectList from "./ProjectList";
+import TeamList from "./TeamList";
 import Brand from "./Brand";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -26,10 +28,20 @@ function App() {
     return <AuthPage onLogin={setToken} />
   }
 
+  if (!selectedTeam) {
+    return <TeamList
+      token={token}
+      onSelect={setSelectedTeam}
+      onLogout={() => setToken(null)}
+      onAuthError={handleAuthError} />;
+  }
+
   if (!selectedProject) {
     return <ProjectList
       token={token}
+      team={selectedTeam}
       onSelect={setSelectedProject}
+      onBack={() => setSelectedTeam(null)}
       onLogout={() => setToken(null)}
       onAuthError={handleAuthError} />;
   }

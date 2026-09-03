@@ -60,3 +60,23 @@ export function getProjectTasks(projectId, token) {
 export function getUsers(token) {
     return request("/api/users", { token });
 }
+
+export function getTeams(token) {
+    return request("/api/teams", { token });
+}
+
+export function createTeam(body, token) {
+    return request("/api/teams", { method: "POST", body, token });
+}
+
+export function addTeamMember(teamId, userId, token) {
+    return request(`/api/teams/${teamId}/members`, { method: "POST", body: { userId }, token });
+}
+
+export function getTeamProjects(teamId, token) {
+    return request(`/api/teams/${teamId}/projects`, { token });
+}
+
+export function getTeamMembers(teamId, token) {
+    return request(`/api/teams/${teamId}/members`, { token });
+}

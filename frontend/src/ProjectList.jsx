@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProjects, createProject } from "./api";
+import { getTeamProjects, createProject } from "./api";
 import Loading from "./Loading";
 import Brand from "./Brand";
 
@@ -13,7 +13,7 @@ function formatCurrency(value) {
     return currencyFormatter.format(value);
 }
 
-export default function ProjectList({ token, onSelect, onLogout, onAuthError }) {
+export default function ProjectList({ token, team, onSelect, onBack, onLogout, onAuthError }) {
     const [projects, setProjects] = useState(null);
     const [error, setError] = useState(null);
     const [name, setName] = useState("");
@@ -23,7 +23,7 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
     function load() {
         setProjects(null);
 
-        getProjects(token)
+        getTeamProjects(team.id, token)
             .then((page) => setProjects(page.content))
             .catch((err) => {
                 if (err.status === 401) {
@@ -34,7 +34,7 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
             });
     }
 
-    useEffect(load, [token]);
+    useEffect(load, [token, team.id]);
 
     async function handleCreate(e) {
         e.preventDefault();
@@ -42,7 +42,7 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
         setError(null);
 
         try {
-            await createProject({ name, budget: Number(budget) }, token);
+            await createProject({ name, budget: Number(budget), teamId: team.id }, token);
             setName("");
             setBudget("");
             load();
@@ -61,9 +61,11 @@ export default function ProjectList({ token, onSelect, onLogout, onAuthError }) 
         <div className="app-shell">
             <Brand />
             <div className="topbar">
-                <h1>Projects</h1>
+                <button className="btn-secondary" onClick={onBack}>← Back to teams</button>
                 <button className="btn-secondary" onClick={onLogout}>Log out</button>
             </div>
+
+            <h1>{team.name}</h1>
 
             <div className="card">
                 <form onSubmit={handleCreate} className="form-row">
